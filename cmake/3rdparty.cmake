@@ -46,48 +46,22 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
             quartzcore::quartzcore
     )
 
-elseif(UNIX AND NOT EMSCRIPTEN)
-
-    find_package(OpenGL REQUIRED)
-    #find_package(Vulkan)
-    find_package(X11 REQUIRED)
-
-    target_link_libraries(GLvsBGFXDeps INTERFACE ${X11_LIBRARIES})
-
-    if(TARGET Vulkan::Vulkan)
-        target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
-    endif()
-    
-    if(TARGET OpenGL::OpenGL)
-        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::OpenGL)
-    elseif(TARGET OpenGL::GL)
-        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::GL)
-    endif()
-
-    if(TARGET OpenGL::GLX)
-        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::GLX)
-    elseif(TARGET OpenGL::EGL)
-        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::EGL)
-    endif()
-
-else()
-
-    #find_package(Vulkan)
-    if(TARGET Vulkan::Vulkan)
-        target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
-    endif()
-
-    find_package(OpenGL REQUIRED)
-    if(TARGET OpenGL::OpenGL)
-        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::OpenGL)
-    elseif(TARGET OpenGL::GL)
-        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::GL)
-    endif()
-
-    find_package(D3D12)
-    if(D3D12_FOUND)
-        target_link_libraries(GLvsBGFXDeps INTERFACE ${D3D12_LIBRARIES})
-    endif()
-
 endif()
 
+
+#find_package(Vulkan)
+if(TARGET Vulkan::Vulkan)
+    target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
+endif()
+    
+find_package(OpenGL)
+if(TARGET OpenGL::OpenGL)
+    target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::OpenGL)
+elseif(TARGET OpenGL::GL)
+    target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::GL)
+endif()
+
+find_package(D3D12)
+if(D3D12_FOUND)
+    target_link_libraries(GLvsBGFXDeps INTERFACE ${D3D12_LIBRARIES})
+endif()
