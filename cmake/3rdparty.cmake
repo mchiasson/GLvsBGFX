@@ -56,7 +56,9 @@ elseif(UNIX AND NOT EMSCRIPTEN)
 
     if(TARGET Vulkan::Vulkan)
         target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
-    elseif(TARGET OpenGL::OpenGL)
+    endif()
+    
+    if(TARGET OpenGL::OpenGL)
         target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::OpenGL)
     elseif(TARGET OpenGL::GL)
         target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::GL)
@@ -70,10 +72,21 @@ elseif(UNIX AND NOT EMSCRIPTEN)
 
 else()
 
+    #find_package(Vulkan)
+    if(TARGET Vulkan::Vulkan)
+        target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
+    endif()
+
+    find_package(OpenGL REQUIRED)
+    if(TARGET OpenGL::OpenGL)
+        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::OpenGL)
+    elseif(TARGET OpenGL::GL)
+        target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::GL)
+    endif()
+
     find_package(D3D12)
     if(D3D12_FOUND)
         target_link_libraries(GLvsBGFXDeps INTERFACE ${D3D12_LIBRARIES})
-        target_include_directories(GLvsBGFXDeps INTERFACE ${D3D12_INCLUDE_DIRS} PRIVATE 3rdparty/dxsdk/include)
     endif()
 
 endif()
