@@ -31,6 +31,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_executable(GLvsBGFX
     main.cpp
+    Texture.cpp
     ${BLVSBGFX_RENDERER}/Renderer.cpp
 )
 

@@ -1,18 +1,19 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
-#include <entityx/entityx.h>
-#include <chrono>
-#include <glm/vec2.hpp>
-#include <memory>
+#include <vector>
 
-class Game : public entityx::EntityX
+#include "Texture.h"
+#include "Vertex.h"
+
+class Renderer
 {
 public:
-    Game(glm::vec2 size);
-    void update();
+    Renderer();
+    ~Renderer();
+    void renderFrame(const std::vector<Vertex> &vertices);
 
-    std::chrono::high_resolution_clock::time_point prev_t;
+    Texture atlas;
 };
 
 #endif // GAME_H

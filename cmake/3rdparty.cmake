@@ -24,6 +24,14 @@ hunter_add_package(bgfx)
 find_package(bgfx CONFIG REQUIRED)
 target_link_libraries(GLvsBGFXDeps INTERFACE bkaradzic::bgfx)
 
+##
+# stb single-file public domain libraries for C/C++ 
+# https://github.com/bkaradzic/bgfx
+##
+hunter_add_package(stb)
+find_package(stb CONFIG REQUIRED)
+target_link_libraries(GLvsBGFXDeps INTERFACE stb::stb)
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 
     find_library(COCOA_LIBRARY Cocoa)
