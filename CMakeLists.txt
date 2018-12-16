@@ -14,13 +14,14 @@ HunterGate(
 project(GLvsBGFX)
 
 include(3rdparty)
+include(shaderc)
 
 ################################################################################
 # GLvsBGFX Build Options
 ################################################################################
 
-set(BLVSBGFX_RENDERER gl CACHE STRING "GLvsBGFX Renderer")
-set_property(CACHE BLVSBGFX_RENDERER PROPERTY STRINGS gl bgfx)
+set(GLVSBGFX_RENDERER gl CACHE STRING "GLvsBGFX Renderer")
+set_property(CACHE GLVSBGFX_RENDERER PROPERTY STRINGS gl bgfx)
 
 
 ################################################################################
@@ -32,7 +33,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_executable(GLvsBGFX
     main.cpp
     Texture.cpp
-    ${BLVSBGFX_RENDERER}/Renderer.cpp
+	Texture.h
+    ${GLVSBGFX_RENDERER}/Renderer.cpp
+	bgfx/default_vert.sc
+	bgfx/default_frag.sc
+	bgfx/varying.def.sc
+	Renderer.h
 )
 
 target_link_libraries(GLvsBGFX PRIVATE GLvsBGFXDeps)

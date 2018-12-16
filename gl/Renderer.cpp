@@ -9,9 +9,6 @@
 #define BREBIS_GL_IMPLEMENTATION
 #include "BrebisGL.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
 #ifndef RENDERER_VERTEX_MAX
 #define RENDERER_VERTEX_MAX 65536
 #endif

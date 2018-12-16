@@ -6,12 +6,14 @@
 
 #include <stdexcept>
 
+#ifndef RENDERER_VERTEX_MAX
+#define RENDERER_VERTEX_MAX 65536
+#endif
+
 extern SDL_Window *window;
 
-Renderer::Renderer()
+Renderer::Renderer() : atlas("atlas.png")
 {
-    prev_t = std::chrono::high_resolution_clock::now();
-    
     SDL_SysWMinfo wmi;
 
     SDL_VERSION(&wmi.version);
@@ -72,14 +74,16 @@ Renderer::Renderer()
     SDL_GetWindowSize(window, &width, &height);
 
     bgfx::Init init;
-    init.type  = bgfx::RendererType::Count;
+    init.type = bgfx::RendererType::OpenGL; // forcing OpenGL to compare oranges vs oranges.
     init.vendorId = BGFX_PCI_ID_NONE;
     init.resolution.width  = uint32_t(width);
     init.resolution.height = uint32_t(height);
     init.resolution.reset  = BGFX_RESET_VSYNC;
 
     bgfx::init(init);
-    //bgfx::setDebug(BGFX_DEBUG_TEXT);
+#ifndef NDEBUG
+    bgfx::setDebug(BGFX_DEBUG_TEXT);
+#endif
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x000000ff);
     bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height) );
 }
@@ -89,7 +93,7 @@ Renderer::~Renderer()
     bgfx::shutdown();
 }
 
-void Renderer::renderFrame()
+void Renderer::renderFrame(const std::vector<Vertex> &vertexData)
 {
     bgfx::touch(0);
 
