@@ -40,7 +40,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     mark_as_advanced(COCOA_LIBRARY)
 
     target_link_libraries(GLvsBGFXDeps
-        PUBLIC
+        INTERFACE
             ${COCOA_LIBRARY}
             metal::metal
             quartzcore::quartzcore
