@@ -34,6 +34,8 @@ shaderc(default_vert INPUT ${CMAKE_SOURCE_DIR}/bgfx/default_vert.sc OUTPUT ${CMA
 shaderc(default_frag INPUT ${CMAKE_SOURCE_DIR}/bgfx/default_frag.sc OUTPUT ${CMAKE_BINARY_DIR}/shaders TYPE f)
 
 add_executable(GLvsBGFX
+	cmake/3rdparty.cmake
+    cmake/shaderc.cmake
     main.cpp
     Texture.cpp
     Texture.h
@@ -42,6 +44,7 @@ add_executable(GLvsBGFX
     bgfx/default_vert.sc
     bgfx/default_frag.sc
     bgfx/varying.def.sc
+    bgfx/bgfx_shader.sh
     ${default_vert}
     ${default_frag}
 )

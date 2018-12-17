@@ -4,7 +4,7 @@
 #include <SDL2/SDL_syswm.h>
 #include <bgfx/platform.h>
 #include <bimg/decode.h>
-#include <bx/allocator.h>
+//#include <bx/allocator.h>
 
 #include <stdexcept>
 #include <fstream>
@@ -13,7 +13,7 @@
 #define RENDERER_VERTEX_MAX 65536
 #endif
 
-static bx::DefaultAllocator s_allocator;
+//static bx::DefaultAllocator s_allocator;
 
 static bgfx::VertexDecl ms_decl;
 static bgfx::DynamicVertexBufferHandle VBO;
