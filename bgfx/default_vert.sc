@@ -1,12 +1,12 @@
-$input a_position
+$input a_position a_texcoord
 $output v_texcoord
 
-uniform vec2 u_viewSize;
+#include "bgfx_shader.sh"
 
 void main()
 {
-    v_texcoord   = a_texcoord;
-    gl_Position  = vec4(mul(mul(2.0, a_position.x), rcp(u_viewSize.x)) - 1.0,
-                        1.0 - mul(mul(2.0, a_position.y), rcp(u_viewSize.y)),
-                        0, 1);
+    v_texcoord  = a_texcoord;
+    gl_Position = vec4(2.0 * a_position.x / u_viewRect.z - 1.0,
+                       1.0 - 2.0 * a_position.y / u_viewRect.w,
+                       0.0, 1.0);
 }

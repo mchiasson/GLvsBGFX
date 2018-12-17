@@ -30,17 +30,23 @@ set_property(CACHE GLVSBGFX_RENDERER PROPERTY STRINGS gl bgfx)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+shaderc(default_vert INPUT ${CMAKE_SOURCE_DIR}/bgfx/default_vert.sc OUTPUT ${CMAKE_BINARY_DIR}/shaders TYPE v)
+shaderc(default_frag INPUT ${CMAKE_SOURCE_DIR}/bgfx/default_frag.sc OUTPUT ${CMAKE_BINARY_DIR}/shaders TYPE f)
+
 add_executable(GLvsBGFX
     main.cpp
     Texture.cpp
-	Texture.h
+    Texture.h
     ${GLVSBGFX_RENDERER}/Renderer.cpp
-	bgfx/default_vert.sc
-	bgfx/default_frag.sc
-	bgfx/varying.def.sc
-	Renderer.h
+    Renderer.h
+    bgfx/default_vert.sc
+    bgfx/default_frag.sc
+    bgfx/varying.def.sc
+    ${default_vert}
+    ${default_frag}
 )
 
+target_compile_definitions(GLvsBGFX PRIVATE $<IF:$<STREQUAL:GLVSBGFX_RENDERER,gl>,RENDERER_GL=1,RENDERER_BGFX=1>)
 target_link_libraries(GLvsBGFX PRIVATE GLvsBGFXDeps)
 
 ################################################################################
@@ -48,7 +54,7 @@ target_link_libraries(GLvsBGFX PRIVATE GLvsBGFXDeps)
 ################################################################################
 
 set(GLVSBGFX_ASSETS
-   atlas.png 
+   atlas.png
 )
 
 foreach(GLVSBGFX_ASSET IN LISTS GLVSBGFX_ASSETS)

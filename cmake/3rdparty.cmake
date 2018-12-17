@@ -22,10 +22,10 @@ target_link_libraries(GLvsBGFXDeps INTERFACE SDL2::SDL2 SDL2::SDL2main)
 ##
 hunter_add_package(bgfx)
 find_package(bgfx CONFIG REQUIRED)
-target_link_libraries(GLvsBGFXDeps INTERFACE bkaradzic::bgfx)
+target_link_libraries(GLvsBGFXDeps INTERFACE bkaradzic::bgfx bkaradzic::bimg_decode)
 
 ##
-# stb single-file public domain libraries for C/C++ 
+# stb single-file public domain libraries for C/C++
 # https://github.com/bkaradzic/bgfx
 ##
 hunter_add_package(stb)
@@ -48,12 +48,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 
 endif()
 
+find_package(X11)
+target_link_libraries(GLvsBGFXDeps INTERFACE ${X11_LIBRARIES})
 
 #find_package(Vulkan)
 if(TARGET Vulkan::Vulkan)
     target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
 endif()
-    
+
 find_package(OpenGL)
 if(TARGET OpenGL::OpenGL)
     target_link_libraries(GLvsBGFXDeps INTERFACE OpenGL::OpenGL)

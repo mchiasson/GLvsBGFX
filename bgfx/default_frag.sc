@@ -1,5 +1,7 @@
 $input v_texcoord
 
+#include "bgfx_shader.sh"
+
 SAMPLER2D(u_texture0, 0);
 
 void main()
