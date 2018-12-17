@@ -110,11 +110,11 @@ Renderer::Renderer() : atlas("atlas.png")
         "\n"
         "\nvoid main()"
         "\n{"
-        "\n    v_texcoord   = a_texcoord;"
-        "\n    gl_Position  = vec4(2.0 * a_position.x / u_viewSize.x - 1.0,"
-        "\n                        1.0 - 2.0 * a_position.y / u_viewSize.y,"
-        "\n                        0,"
-        "\n                        1);"
+        "\n    v_texcoord  = vec2(1.0, 1.0) + a_texcoord;"
+        "\n    gl_Position = vec4(2.0 * a_position.x / u_viewSize.x - 1.0,"
+        "\n                       1.0 - 2.0 * a_position.y / u_viewSize.y,"
+        "\n                       0,"
+        "\n                       1);"
         "\n}"
         "\n";
 
@@ -159,33 +159,26 @@ Renderer::Renderer() : atlas("atlas.png")
     u_viewSize = glGetUniformLocation(program, "u_viewSize");
 
     glUseProgram(program);
-    glVertexAttribPointer(static_cast<GLuint>(a_position), 2,  GL_FLOAT,          GL_FALSE, sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_position)));
-    glVertexAttribPointer(static_cast<GLuint>(a_texcoord), 2,  GL_UNSIGNED_SHORT, GL_TRUE,  sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_texcoord)));
+    glVertexAttribPointer(static_cast<GLuint>(a_position), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_position)));
+    glVertexAttribPointer(static_cast<GLuint>(a_texcoord), 2, GL_SHORT, GL_TRUE,  sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_texcoord)));
     glEnableVertexAttribArray(static_cast<GLuint>(a_position));
     glEnableVertexAttribArray(static_cast<GLuint>(a_texcoord));
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[VBO]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[IBO]);
 
     glUniform2f(u_viewSize, static_cast<GLfloat>(width), static_cast<GLfloat>(height));
 
     glGenTextures(1, &atlasHandle);
     glBindTexture(GL_TEXTURE_2D, atlasHandle);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, atlas.width, atlas.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, atlas.buffer);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-#if 0
-    // bilinear filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-#else
-    // Trilinear filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glGenerateMipmap(GL_TEXTURE_2D);
-#endif
+
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
+    glFrontFace(GL_CCW);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_DEPTH_TEST);

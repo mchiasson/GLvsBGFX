@@ -1,5 +1,6 @@
 #include <ctime>
 #include <memory>
+#include <climits>
 
 #include "Renderer.h"
 
@@ -8,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #ifndef NUM_IMG_ROW
-#define NUM_IMG_ROW 20
+#define NUM_IMG_ROW 320
 #endif
 
 static std::unique_ptr<Renderer> renderer;
@@ -38,45 +39,50 @@ int main(int argc, char* argv[])
 
     renderer = std::make_unique<Renderer>();
 
-    glm::u16vec2 textures[18*4];
+    // We normalize our texture coord between -32768 and +32767.
+    // This way, we only need to upload 4 bytes of texcoord per images instead of 8 bytes.
+    // These values are specifically hardcoded for 'atlas.png' and won't work with any other
+    // images.
 
-    uint16_t s0 = 1024;
-    uint16_t t0 = 1024;
-    uint16_t t1 = t0 + 4096;
+    glm::i16vec2 textures[18*4];
+
+    int16_t s0 = 512+SHRT_MIN;
+    int16_t t0 = 512+SHRT_MIN;
+    int16_t t1 = t0 + 2048;
     for (size_t i = 0; i < 10; ++i)
     {
-        uint16_t s1 = s0 + 4096;
+        int16_t s1 = s0 + 2048;
 
         textures[i*4+0].s = s0;
         textures[i*4+0].t = t0;
-        textures[i*4+1].s = s1;
-        textures[i*4+1].t = t0;
+        textures[i*4+1].s = s0;
+        textures[i*4+1].t = t1;
         textures[i*4+2].s = s1;
         textures[i*4+2].t = t1;
-        textures[i*4+3].s = s0;
-        textures[i*4+3].t = t1;
+        textures[i*4+3].s = s1;
+        textures[i*4+3].t = t0;
 
-        s0 = s1 + 2048;
+        s0 = s1 + 1024;
     }
 
-    s0 = 1024;
-    t0 = t1 + 2048;
-    t1 = t0 + 4096;
+    s0 = 512 + SHRT_MIN;
+    t0 = t1 + 1024;
+    t1 = t0 + 2048;
     for (size_t i = 10; i < 18; ++i)
     {
-        uint16_t s1 = s0 + 4096;
-        uint16_t t1 = t0 + 4096;
+        int16_t s1 = s0 + 2048;
+        int16_t t1 = t0 + 2048;
 
         textures[i*4+0].s = s0;
         textures[i*4+0].t = t0;
-        textures[i*4+1].s = s1;
-        textures[i*4+1].t = t0;
+        textures[i*4+1].s = s0;
+        textures[i*4+1].t = t1;
         textures[i*4+2].s = s1;
         textures[i*4+2].t = t1;
-        textures[i*4+3].s = s0;
-        textures[i*4+3].t = t1;
+        textures[i*4+3].s = s1;
+        textures[i*4+3].t = t0;
 
-        s0 = s1 + 2048;
+        s0 = s1 + 1024;
     }
 
 
@@ -145,10 +151,12 @@ int main(int argc, char* argv[])
             const float sx1 = s * x1;
             const float sx0 = s * x0;
 
-            vertexData[i*4+0].a_position = glm::vec2(cx0 - sx0 + transforms[i].position.x, sx0 + cx0 + transforms[i].position.y);
-            vertexData[i*4+1].a_position = glm::vec2(cx1 - sx0 + transforms[i].position.x, sx1 + cx0 + transforms[i].position.y);
-            vertexData[i*4+2].a_position = glm::vec2(cx1 - sx1 + transforms[i].position.x, sx1 + cx1 + transforms[i].position.y);
-            vertexData[i*4+3].a_position = glm::vec2(cx0 - sx1 + transforms[i].position.x, sx0 + cx1 + transforms[i].position.y);
+            // we to top left, bottom left, bottom right top right to assure counter-clock-wise as we're identifying CCW faces as the front face. 
+            // the clockwise face is going to be our back face and we will be culling that face for performance reasons.
+            vertexData[i * 4 + 0].a_position = glm::vec2(cx0 - sx0 + transforms[i].position.x, sx0 + cx0 + transforms[i].position.y); // top left
+            vertexData[i * 4 + 1].a_position = glm::vec2(cx0 - sx1 + transforms[i].position.x, sx0 + cx1 + transforms[i].position.y); // bottom left
+            vertexData[i * 4 + 2].a_position = glm::vec2(cx1 - sx1 + transforms[i].position.x, sx1 + cx1 + transforms[i].position.y); // bottom right
+            vertexData[i * 4 + 3].a_position = glm::vec2(cx1 - sx0 + transforms[i].position.x, sx1 + cx0 + transforms[i].position.y); // top right
 
             transforms[i].angle += 0.05f;
         }

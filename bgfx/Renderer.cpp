@@ -4,7 +4,6 @@
 #include <SDL2/SDL_syswm.h>
 #include <bgfx/platform.h>
 #include <bimg/decode.h>
-//#include <bx/allocator.h>
 
 #include <stdexcept>
 #include <fstream>
@@ -12,8 +11,6 @@
 #ifndef RENDERER_VERTEX_MAX
 #define RENDERER_VERTEX_MAX 65536
 #endif
-
-//static bx::DefaultAllocator s_allocator;
 
 static bgfx::VertexDecl ms_decl;
 static bgfx::DynamicVertexBufferHandle VBO;
@@ -23,7 +20,7 @@ static bgfx::ShaderHandle frag;
 static bgfx::ProgramHandle program;
 static bgfx::TextureHandle atlasHandle;
 static bgfx::UniformHandle u_texture0;
-static uint64_t state = BGFX_STATE_BLEND_FUNC_SEPARATE(BGFX_STATE_BLEND_SRC_COLOR, BGFX_STATE_BLEND_INV_SRC_COLOR, BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA) | BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A;
+static uint64_t state = BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_SRC_ALPHA, BGFX_STATE_BLEND_INV_SRC_ALPHA) | BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_CULL_CW;
 
 static const bgfx::Memory* ReadAllBytes(const std::string &filename)
 {
@@ -115,7 +112,11 @@ Renderer::Renderer() : atlas("atlas.png")
     SDL_GetWindowSize(window, &width, &height);
 
     bgfx::Init init;
+#ifdef _WIN32
+    init.type = bgfx::RendererType::Direct3D11; // temporary as OpenGL seems broken at the moment :-(
+#else
     init.type = bgfx::RendererType::OpenGL; // forcing OpenGL to compare oranges vs oranges.
+#endif
     init.vendorId = BGFX_PCI_ID_NONE;
     init.resolution.width  = uint32_t(width);
     init.resolution.height = uint32_t(height);
@@ -177,24 +178,12 @@ Renderer::Renderer() : atlas("atlas.png")
 
     program = bgfx::createProgram(vert, frag, true);
 
-#if 0
-    const bgfx::Memory* atlas_png = ReadAllBytes("atlas.png");
-    bimg::ImageContainer* imageContainer = bimg::imageParse(&s_allocator, atlas_png->data, atlas_png->size, bimg::TextureFormat::RGBA8);
-    atlasHandle = bgfx::createTexture2D(imageContainer->m_width,
-                                        imageContainer->m_height,
-                                        false, 1,
-                                        bgfx::TextureFormat::RGBA8,
-                                        BGFX_SAMPLER_NONE,
-                                        bgfx::copy(imageContainer->m_data, imageContainer->m_size));
-    bimg::imageFree(imageContainer);
-#else
     atlasHandle = bgfx::createTexture2D(atlas.width,
                                         atlas.height,
                                         false, 1,
                                         bgfx::TextureFormat::RGBA8,
                                         BGFX_SAMPLER_NONE,
                                         bgfx::makeRef(atlas.buffer, atlas.width * atlas.height * 4));
-#endif
 
 
     bgfx::setName(atlasHandle, "atlas.png");
@@ -230,17 +219,22 @@ void Renderer::renderFrame(const std::vector<Vertex> &vertexData)
 {
     bgfx::touch(0);
 
+    bgfx::TransientVertexBuffer tvb;
+    bgfx::allocTransientVertexBuffer(&tvb, vertexData.size(), ms_decl);
+
+    memcpy(tvb.data, vertexData.data(), vertexData.size() * sizeof(Vertex));
+
+
     bgfx::setIndexBuffer(IBO);
-    bgfx::setVertexBuffer(0, VBO, 0, RENDERER_VERTEX_MAX);
     bgfx::setTexture(0, u_texture0, atlasHandle);
     bgfx::setState(state);
 
-    size_t count = vertexData.size();
-    size_t index = 0;
+    uint32_t count = uint32_t(vertexData.size());
+    uint32_t index = 0;
 
     while(count > RENDERER_VERTEX_MAX)
     {
-        bgfx::update(VBO, 0, bgfx::makeRef(&vertexData[index], RENDERER_VERTEX_MAX * sizeof(Vertex)));
+        bgfx::setVertexBuffer(0, &tvb, index, RENDERER_VERTEX_MAX);
         bgfx::submit(0, program, 0, true);
         index += RENDERER_VERTEX_MAX;
         count -= RENDERER_VERTEX_MAX;
@@ -248,11 +242,9 @@ void Renderer::renderFrame(const std::vector<Vertex> &vertexData)
 
     if (count > 0)
     {
-        bgfx::setVertexBuffer(0, VBO, 0, count);
-        bgfx::update(VBO, 0, bgfx::makeRef(&vertexData[index], count * sizeof(Vertex)));
+        bgfx::setVertexBuffer(0, &tvb, index, count);
         bgfx::submit(0, program, 0, false);
     }
-
 
     bgfx::frame();
 }

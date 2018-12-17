@@ -41,6 +41,9 @@ add_executable(GLvsBGFX
     Texture.h
     ${GLVSBGFX_RENDERER}/Renderer.cpp
     Renderer.h
+    Vertex.h
+
+    # bgfx-specific
     bgfx/default_vert.sc
     bgfx/default_frag.sc
     bgfx/varying.def.sc
