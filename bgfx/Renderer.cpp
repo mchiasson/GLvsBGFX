@@ -12,7 +12,12 @@
 #define RENDERER_VERTEX_MAX 65536
 #endif
 
+#ifndef RENDERER_VBO_POOL_COUNT
+#define RENDERER_VBO_POOL_COUNT 32
+#endif
+
 static bgfx::VertexDecl ms_decl;
+static bgfx::DynamicVertexBufferHandle VBO[RENDERER_VBO_POOL_COUNT];
 static bgfx::IndexBufferHandle IBO;
 static bgfx::ShaderHandle vert;
 static bgfx::ShaderHandle frag;
@@ -141,6 +146,10 @@ Renderer::Renderer() : atlas("atlas.png")
     }
 
     // Create vertex and index buffer objects for the batches
+    for (size_t i = 0; i < RENDERER_VBO_POOL_COUNT; ++i)
+    {
+        VBO[i] = bgfx::createDynamicVertexBuffer(RENDERER_VERTEX_MAX, ms_decl);
+    }
     IBO = bgfx::createIndexBuffer(bgfx::makeRef(indices, sizeof(indices)));
 
     std::string shaderPath;
@@ -195,6 +204,10 @@ Renderer::Renderer() : atlas("atlas.png")
 
 Renderer::~Renderer()
 {
+    for (size_t i = 0; i < RENDERER_VBO_POOL_COUNT; ++i)
+    {
+        bgfx::destroy(VBO[i]);
+    }
     bgfx::destroy(IBO);
     bgfx::destroy(program);
     bgfx::destroy(atlasHandle);
@@ -210,30 +223,28 @@ void Renderer::renderFrame(const std::vector<Vertex> &vertexData)
 {
     bgfx::touch(0);
 
-    bgfx::TransientVertexBuffer tvb;
-    bgfx::allocTransientVertexBuffer(&tvb, vertexData.size(), ms_decl);
-
-    memcpy(tvb.data, vertexData.data(), vertexData.size() * sizeof(Vertex));
-
-
     bgfx::setIndexBuffer(IBO);
     bgfx::setTexture(0, u_texture0, atlasHandle);
     bgfx::setState(state);
 
     uint32_t count = uint32_t(vertexData.size());
     uint32_t index = 0;
+    uint32_t vboid = 0;
 
     while(count > RENDERER_VERTEX_MAX)
     {
-        bgfx::setVertexBuffer(0, &tvb, index, RENDERER_VERTEX_MAX);
+        bgfx::update(VBO[vboid], 0, bgfx::makeRef(&vertexData[index], RENDERER_VERTEX_MAX * sizeof(Vertex)));
+        bgfx::setVertexBuffer(0, VBO[vboid], 0, RENDERER_VERTEX_MAX);
         bgfx::submit(0, program, 0, true);
         index += RENDERER_VERTEX_MAX;
         count -= RENDERER_VERTEX_MAX;
+        ++vboid;
     }
 
     if (count > 0)
     {
-        bgfx::setVertexBuffer(0, &tvb, index, count);
+        bgfx::update(VBO[vboid], 0, bgfx::makeRef(&vertexData[index], count * sizeof(Vertex)));
+        bgfx::setVertexBuffer(0, VBO[vboid], 0, count);
         bgfx::submit(0, program, 0, false);
     }
 

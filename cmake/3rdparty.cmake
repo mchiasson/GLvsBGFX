@@ -26,7 +26,7 @@ target_link_libraries(GLvsBGFXDeps INTERFACE bkaradzic::bgfx bkaradzic::bimg_dec
 
 ##
 # stb single-file public domain libraries for C/C++
-# https://github.com/bkaradzic/bgfx
+# https://github.com/nothings/stb
 ##
 hunter_add_package(stb)
 find_package(stb CONFIG REQUIRED)
@@ -51,7 +51,7 @@ endif()
 find_package(X11)
 target_link_libraries(GLvsBGFXDeps INTERFACE ${X11_LIBRARIES})
 
-#find_package(Vulkan)
+find_package(Vulkan)
 if(TARGET Vulkan::Vulkan)
     target_link_libraries(GLvsBGFXDeps INTERFACE Vulkan::Vulkan)
 endif()
