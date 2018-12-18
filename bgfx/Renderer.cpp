@@ -13,7 +13,6 @@
 #endif
 
 static bgfx::VertexDecl ms_decl;
-static bgfx::DynamicVertexBufferHandle VBO;
 static bgfx::IndexBufferHandle IBO;
 static bgfx::ShaderHandle vert;
 static bgfx::ShaderHandle frag;
@@ -112,11 +111,7 @@ Renderer::Renderer() : atlas("atlas.png")
     SDL_GetWindowSize(window, &width, &height);
 
     bgfx::Init init;
-#ifdef _WIN32
-    init.type = bgfx::RendererType::Direct3D11; // temporary as OpenGL seems broken at the moment :-(
-#else
     init.type = bgfx::RendererType::OpenGL; // forcing OpenGL to compare oranges vs oranges.
-#endif
     init.vendorId = BGFX_PCI_ID_NONE;
     init.resolution.width  = uint32_t(width);
     init.resolution.height = uint32_t(height);
@@ -146,7 +141,6 @@ Renderer::Renderer() : atlas("atlas.png")
     }
 
     // Create vertex and index buffer objects for the batches
-    VBO = bgfx::createDynamicVertexBuffer(RENDERER_VERTEX_MAX, ms_decl);
     IBO = bgfx::createIndexBuffer(bgfx::makeRef(indices, sizeof(indices)));
 
     std::string shaderPath;
@@ -191,7 +185,6 @@ Renderer::Renderer() : atlas("atlas.png")
 
     u_texture0 = bgfx::createUniform("u_texture0",  bgfx::UniformType::Int1);
 
-    bgfx::setVertexBuffer(0, VBO);
     bgfx::setIndexBuffer(IBO);
     bgfx::setTexture(0, u_texture0, atlasHandle);
     bgfx::setState(state);
@@ -202,8 +195,6 @@ Renderer::Renderer() : atlas("atlas.png")
 
 Renderer::~Renderer()
 {
-
-    bgfx::destroy(VBO);
     bgfx::destroy(IBO);
     bgfx::destroy(program);
     bgfx::destroy(atlasHandle);

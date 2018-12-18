@@ -160,7 +160,7 @@ Renderer::Renderer() : atlas("atlas.png")
 
     glUseProgram(program);
     glVertexAttribPointer(static_cast<GLuint>(a_position), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_position)));
-    glVertexAttribPointer(static_cast<GLuint>(a_texcoord), 2, GL_SHORT, GL_TRUE,  sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_texcoord)));
+    glVertexAttribPointer(static_cast<GLuint>(a_texcoord), 2, GL_SHORT, GL_TRUE,  sizeof(Vertex), reinterpret_cast<const void *>(offsetof(Vertex, a_texcoord0)));
     glEnableVertexAttribArray(static_cast<GLuint>(a_position));
     glEnableVertexAttribArray(static_cast<GLuint>(a_texcoord));
 

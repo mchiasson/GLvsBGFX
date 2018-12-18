@@ -6,7 +6,7 @@
 struct Vertex
 {
     glm::vec2 a_position;
-    glm::i16vec2 a_texcoord;
+    glm::i16vec2 a_texcoord0;
 };
 
 #endif // VERTEX_H

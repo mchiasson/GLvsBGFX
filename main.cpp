@@ -104,10 +104,10 @@ int main(int argc, char* argv[])
             int i = (x+(y*NUM_IMG_ROW));
             transforms[i].position.x = xspace*(x+1);
             transforms[i].position.y = ySpace*(y+1);
-            vertexData[i*4+0].a_texcoord = textures[(i % 18) * 4 + 0];
-            vertexData[i*4+1].a_texcoord = textures[(i % 18) * 4 + 1];
-            vertexData[i*4+2].a_texcoord = textures[(i % 18) * 4 + 2];
-            vertexData[i*4+3].a_texcoord = textures[(i % 18) * 4 + 3];
+            vertexData[i*4+0].a_texcoord0 = textures[(i % 18) * 4 + 0];
+            vertexData[i*4+1].a_texcoord0 = textures[(i % 18) * 4 + 1];
+            vertexData[i*4+2].a_texcoord0 = textures[(i % 18) * 4 + 2];
+            vertexData[i*4+3].a_texcoord0 = textures[(i % 18) * 4 + 3];
         }
     }
 
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
             const float sx1 = s * x1;
             const float sx0 = s * x0;
 
-            // we to top left, bottom left, bottom right top right to assure counter-clock-wise as we're identifying CCW faces as the front face. 
+            // we to top left, bottom left, bottom right top right to assure counter-clock-wise as we're identifying CCW faces as the front face.
             // the clockwise face is going to be our back face and we will be culling that face for performance reasons.
             vertexData[i * 4 + 0].a_position = glm::vec2(cx0 - sx0 + transforms[i].position.x, sx0 + cx0 + transforms[i].position.y); // top left
             vertexData[i * 4 + 1].a_position = glm::vec2(cx0 - sx1 + transforms[i].position.x, sx0 + cx1 + transforms[i].position.y); // bottom left
