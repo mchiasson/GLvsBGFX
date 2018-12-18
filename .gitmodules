@@ -1,0 +1,9 @@
+[submodule "3rdparty/bx"]
+	path = 3rdparty/bx
+	url = http://github.com/mchiasson/bx
+[submodule "3rdparty/bimg"]
+	path = 3rdparty/bimg
+	url = http://github.com/mchiasson/bimg
+[submodule "3rdparty/bgfx"]
+	path = 3rdparty/bgfx
+	url = http://github.com/mchiasson/bgfx
